@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TabTailor - The Master Tailor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap');
+
+    :root {
+      /* Palette Harmonization: Marine Blue & Slate 50 */
+      --fabric-cream: #F8FAFC;  /* Slate-50 */
+      --stitch-dark: #0284C7;   /* Marine Blue */
+      --denim-blue: #0ea5e9;    /* Sky Blue */
+      --accent-red: #ef4444;    /* Slate-Red */
+      --text-main: #0f172a;     /* Slate-900 */
+    }
+
+    body {
+      width: 380px;
+      margin: 0;
+      padding: 0;
+      font-family: 'Crimson Text', serif;
+      background-color: var(--fabric-cream);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .patchwork-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border: 4px double var(--stitch-dark);
+      border-radius: 24px;
+      margin: 8px;
+      background-image: radial-gradient(var(--stitch-dark) 0.5px, transparent 0.5px);
+      background-size: 15px 15px;
+      background-color: var(--fabric-cream);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.02);
+      position: relative;
+      min-height: 440px;
+    }
+
+    .header-patch {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border: 2px dashed var(--stitch-dark);
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .header-patch h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--stitch-dark);
+      padding: 4px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-btn:hover {
+      background: #f1f5f9;
+      color: var(--denim-blue);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spinning { animation: spin 0.6s ease-in-out; }
+
+    .view-panel { transition: opacity 0.3s ease; }
+    .hidden { display: none; opacity: 0; }
+
+    /* Content Patches */
+    .content-patch {
+      border: 2px dashed var(--stitch-dark);
+      border-radius: 20px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .patch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .patch-title {
+      font-size: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Skeuomorphic Checkbox */
+    .stitch-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1px dashed var(--stitch-dark);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .stitch-checkbox:checked {
+      background: var(--stitch-dark);
+      border-style: solid;
+    }
+
+    .stitch-checkbox:checked::after {
+      content: 'X';
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .select-all-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--stitch-dark);
+      font-style: italic;
+    }
+
+    /* Triage Grouping Styles */
+    .triage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .priority-group {
+      border: 1px dashed var(--stitch-dark);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .priority-critical { background-color: #fef2f2; border-color: #fca5a5; }
+    .priority-fraying { background-color: #fffbeb; border-color: #fde68a; }
+    .priority-loose { background-color: #f0f9ff; border-color: #bae6fd; }
+
+    .group-header {
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--stitch-dark);
+      border-bottom: 1px dotted rgba(0,0,0,0.1);
+      padding-bottom: 4px;
+    }
+
+    .tab-thread {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border: 1px dashed rgba(0,0,0,0.08);
+      border-radius: 12px;
+      background: white;
+      gap: 10px;
+    }
+
+    .tab-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .tab-favicon { width: 16px; height: 16px; flex-shrink: 0; }
+    .tab-text { display: flex; flex-direction: column; min-width: 0; }
+    .tab-title { font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tab-time { font-size: 0.75rem; color: #64748b; font-style: italic; }
+
+    .tab-actions { display: flex; gap: 6px; }
+    .action-btn {
+      padding: 6px;
+      border: 1px solid var(--stitch-dark);
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { background: #f1f5f9; transform: translateY(-2px); }
+
+    .bulk-action-bar {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 2px dashed #e2e8f0;
+    }
+
+    .master-snip-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-red);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Crimson Text', serif;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 0 #991b1b;
+      transition: all 0.1s;
+      display: none;
+    }
+
+    .master-snip-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #991b1b;
+    }
+
+    /* Settings UI */
+    .settings-group { margin-bottom: 16px; }
+    .settings-label { display: block; font-size: 0.85rem; font-weight: bold; color: var(--stitch-dark); margin-bottom: 8px; }
+    
+    select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--stitch-dark);
+      font-family: 'Crimson Text', serif;
+      background: white;
+    }
+
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+    .stitch-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--stitch-dark);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Crimson Text', serif;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    .footer-patch {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      padding: 12px;
+      border-top: 1px solid rgba(0,0,0,0.05);
+      margin-top: auto;
+    }
+
+    .empty-state {
+      text-align: center;
+      font-style: italic;
+      color: #94a3b8;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="patchwork-container">
+    <!-- Header -->
+    <div class="header-patch">
+      <div class="header-left">
+        <img src="assets/icon-48.png" class="brand-logo" alt="TabTailor">
+        <h1>TabTailor</h1>
+        <button id="refreshBtn" class="icon-btn" title="Refresh Threads">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2v6h-6"></path>
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+            <path d="M3 22v-6h6"></path>
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="header-right">
+        <button id="settingsBtn" class="icon-btn" title="Tailor Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Triage View -->
+    <div id="triageView" class="view-panel">
+      <div class="content-patch">
+        <div class="patch-header">
+          <div class="patch-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Stale Threads
+          </div>
+          <label class="select-all-wrap">
+            <input type="checkbox" id="selectAll" class="stitch-checkbox">
+            Select All
+          </label>
+        </div>
+        
+        <div class="triage-list" id="staleList">
+          <div class="empty-state">No stale threads yet...</div>
+        </div>
+
+        <div class="bulk-action-bar">
+          <button id="masterSnipBtn" class="master-snip-btn">✂️ Snip Selected (0)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" class="view-panel hidden">
+      <div class="content-patch">
+        <div class="patch-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Tailor Preferences
+        </div>
+        
+        <div class="settings-group">
+          <label class="settings-label">Stale Threshold</label>
+          <select id="thresholdSelect">
+            <option value="1">1 Minute (Test)</option>
+            <option value="5">5 Minutes</option>
+            <option value="10">10 Minutes</option>
+            <option value="15">15 Minutes</option>
+            <option value="60">1 Hour</option>
+            <option value="720">12 Hours</option>
+            <option value="1440">24 Hours</option>
+          </select>
+        </div>
+
+        <div class="toggle-row">
+          <span class="settings-label" style="margin-bottom:0">Auto-Refresh on Open</span>
+          <input type="checkbox" id="autoRefreshToggle" checked class="stitch-checkbox">
+        </div>
+
+        <button id="backBtn" class="stitch-btn">Back to Threads</button>
+      </div>
+    </div>
+
+    <div class="footer-patch">
+      TabTailor Official v2.5 &copy; 2026
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
